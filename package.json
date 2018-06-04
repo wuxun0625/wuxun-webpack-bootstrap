@@ -1,0 +1,25 @@
+{
+  "name": "wuxun-vue-webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "webpack",
+    "server": "webpack-dev-server --open"
+  },
+  "author": "wuxun",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^4.1.1",
+    "jquery": "^3.3.1",
+    "popper": "^1.0.1",
+    "popper.js": "^1.14.3"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.11",
+    "raw-loader": "^0.5.1",
+    "style-loader": "^0.21.0",
+    "webpack": "^4.10.2",
+    "webpack-cli": "^3.0.0"
+  }
+}
