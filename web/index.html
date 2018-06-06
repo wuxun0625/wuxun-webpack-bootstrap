@@ -26,15 +26,12 @@
            id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link"
-               href="#"
-               v-on:click="clickHomeFunc">Home
-              <span class="sr-only">(current)</span>
-            </a>
+            <router-link class="nav-link"
+                         to="/home">HOME</router-link>
           </li>
           <li class="nav-item">
-            <a class="nav-link"
-               href="#">Link</a>
+            <router-link class="nav-link"
+                         to="/about">About</router-link>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle"
@@ -49,7 +46,8 @@
             <div class="dropdown-menu"
                  aria-labelledby="navbarDropdown">
               <a class="dropdown-item"
-                 href="#">Action</a>
+                 href="#"
+                 v-on:click="clickHomeFunc">Action</a>
               <a class="dropdown-item"
                  href="#">Another action</a>
               <div class="dropdown-divider"></div>
@@ -90,9 +88,6 @@
 
     <div class="container"
          style="min-height: 83vh">
-      This is container
-      <router-link to="/home">Go to Foo</router-link>
-      <router-link to="/about">Go to Bar</router-link>
       <router-view></router-view>
     </div>
 
