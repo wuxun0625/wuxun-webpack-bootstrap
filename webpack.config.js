@@ -1,5 +1,5 @@
 var webpack = require('webpack');
-const {VueLoaderPlugin} = require('vue-loader')
+const { VueLoaderPlugin } = require('vue-loader')
 module.exports = {
   mode: 'development',
   entry: __dirname + "/src/main.js",//已多次提及的唯一入口文件
@@ -24,10 +24,6 @@ module.exports = {
         use: [
           'raw-loader'
         ]
-      },
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader'
       },
       {
         test: /\.vue$/,

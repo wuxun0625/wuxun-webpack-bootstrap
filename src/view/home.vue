@@ -1,16 +1,23 @@
 <template>
-	<div id="home">
-		This is home page
+	<div id="home"
+       v-on:click="clickHomeContentFunc">
+		{{WelcomeMsg}}
 	</div>
 </template>
 <script>
 export default {
   data() {
-    return {};
+    return {
+      WelcomeMsg: 'Welcome to home!'
+    };
   },
 
   props: {},
 
-  methods: {}
+  methods: {
+    clickHomeContentFunc: function () {
+      this.WelcomeMsg = "Click home content"
+    }
+  }
 };
 </script>
