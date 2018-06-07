@@ -5,12 +5,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../web/index.html';
 import Vue from '../node_modules/vue/dist/vue.esm';
 import VueRouter from 'vue-router';
+import home from './view/home.vue'
 
-const Home = { template: '<p>home page</p>' }
 const About = { template: '<p>about page</p>' }
 
 const routes = [
-    { path: '/home', component: Home },
+    { path: '/home', component: home },
     { path: '/about', component: About }
 ];
 
