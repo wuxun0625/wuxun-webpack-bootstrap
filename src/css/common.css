@@ -1,0 +1,9 @@
+.panel {
+    border: 1px solid #e0e1e1;
+    background-color: #fff;
+    border-radius: 1px;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: .85714rem;
+    position: relative;
+}
