@@ -5,6 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../web/index.html';
 import Vue from '../node_modules/vue/dist/vue.esm';
 import VueRouter from 'vue-router';
+import BootstrapVue from 'bootstrap-vue'
+import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
 import './css/common.css';
 import home from './view/home.vue';
 
@@ -21,6 +23,7 @@ const router = new VueRouter({
 });
 
 Vue.use(VueRouter);
+Vue.use(BootstrapVue);
 
 var app = new Vue({
     el: '#vue_root',

@@ -3,69 +3,33 @@
        v-on:click="clickHomeContentFunc">
     {{WelcomeMsg}}
 
-    <vuetable ref="vuetable"
-              api-url="https://vuetable.ratiw.net/api/users"
-              :fields="fields"
-              pagination-path=""
-              @vuetable:pagination-data="onPaginationData"
-              class="table table-hover"></vuetable>
-    <vuetable-pagination ref="pagination"
-                         @vuetable-pagination:change-page="onChangePage"></vuetable-pagination>
+    <b-table striped hover :items="items"></b-table>
+
   </div>
 </template>
 <script>
-import vuetable from "vuetable-2";
-import VuetablePagination from "../../node_modules/vuetable-2/src/components/VuetablePagination.vue";
+const items = [
+  { isActive: true, age: 40, first_name: 'Dickerson', last_name: 'Macdonald' },
+  { isActive: false, age: 21, first_name: 'Larsen', last_name: 'Shaw' },
+  { isActive: false, age: 89, first_name: 'Geneva', last_name: 'Wilson' },
+  { isActive: true, age: 38, first_name: 'Jami', last_name: 'Carney' }
+]
 
 export default {
   data() {
     return {
       WelcomeMsg: "Welcome to home!",
-      fields: [
-        "name",
-        "email",
-        {
-          name: "birthdate",
-          titleClass: "text-center",
-          dataClass: "text-center"
-        },
-        {
-          name: "nickname"
-        },
-        {
-          name: "gender",
-          titleClass: "center aligned",
-          dataClass: "center aligned",
-          callback: "genderLabel"
-        },
-        {
-          name: "salary"
-        }
-      ]
+      items: items
     };
   },
 
-  components: {
-    vuetable,
-    VuetablePagination
-  },
+  components: {},
 
   props: {},
 
   methods: {
     clickHomeContentFunc: function() {
       this.WelcomeMsg = "Click home content";
-    },
-    genderLabel(value) {
-      return value === "M"
-        ? '<span class="badge badge-primary">Male</span>'
-        : '<span class="badge badge-danger">Female</span>';
-    },
-    onPaginationData(paginationData) {
-      this.$refs.pagination.setPaginationData(paginationData);
-    },
-    onChangePage(page) {
-      this.$refs.vuetable.changePage(page);
     }
   }
 };
