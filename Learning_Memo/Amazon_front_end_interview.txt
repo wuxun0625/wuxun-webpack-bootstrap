@@ -1,0 +1,70 @@
+1.问你知不知道javascript的closure的概念，问你如何利用其实现一个私有的不能被外界访问的变量
+  闭包，即在当前函数执行域中访问父执行域中定义的变量。
+  利用闭包实现访问函数的私有变量：https://www.cnblogs.com/ihardcoder/p/4914938.html
+  function Person(name){
+  var _name = name;
+  this.getName = function(){
+    return _name;
+  }
+}
+
+var person = new Person('Joe');
+alert(person._name); // undefined
+alert(person.getName()); //'Joe'
+  
+  
+2.问你关于doctype的概念，以及浏览器如何实现这些doctype
+  https://www.cnblogs.com/dreamless/p/8085074.html
+3.http的verb种类，以及get和post的区别和工作流程；
+  https://blog.csdn.net/pz_winner/article/details/78301167
+  https://www.jianshu.com/p/1a49a7b08ee0
+  
+  http工作流程：https://www.cnblogs.com/zimohul/p/6506406.html
+  什么是3次握手： https://blog.csdn.net/guyuealian/article/details/52535294
+
+4.在你之前的项目中如何实现前端代码的优化
+  将不再使用的引用类型变量设置为null，提示进行垃圾回收
+  减少不必要的双向或单向数据绑定的使用
+
+5.编写一个简单的javascript程序，需要你使用array.prototype.join这个函数实现一个函数spam(n)其输出为n个相连的"hue"组成的字符串；
+  https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/join
+
+6.编写一个javascript程序，需要你实现一个功能就是点击一个页面上的按钮，按钮上的计数器加一的同时生成一个新的按钮，新的按钮上的计数器值为0，
+  接着你可以任意点击这两个按钮中的其中一个相应地增加它计数器的数值并且同时生成第三个按钮，一直这样继续下去
+	<!-- index.html -->
+	<!DOCTYPE html>
+	<html lang="en">
+	
+	<head>
+	<meta charset="utf-8">
+	<title>wuxun-test</title>
+	</head>
+	
+	<body>
+	<div id="root">
+		<input id="origin_btn" type="button" value=1 />
+	</div>
+	<script src="test.js"></script>
+	</body>
+	
+	</html>
+	
+	function createBtn() {
+    var netBtn = document.createElement("input");
+    netBtn.type='button';
+    netBtn.value=1;
+    netBtn.addEventListener('click',btnClick);
+    document.getElementById('root').appendChild(netBtn);
+	}
+	
+	function btnClick (event) {
+		event.srcElement.value++;
+		createBtn();
+	}
+	
+	document.getElementById('origin_btn').addEventListener('click',btnClick);
+
+7.如果突然之间你的网站从某一个源头上得到了原来两倍以上的流量，你要如何处理
+  首先确认瓶颈点，cpu memory diskI/O networkI/O
+  然后考虑scal up资源，
+  如果单点无法满足访问需求，可以考虑导入集群进行负载均衡

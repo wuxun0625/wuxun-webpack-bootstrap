@@ -1,0 +1,50 @@
+1.Framework开发理念。
+  Angular.js是为了全面，全能，什么都能做，但是需要你接受它定义好的结构框架，并且需要项目从一开始就全面的使用它。
+  Vue.js标榜渐进式应用，专注于状态到界面的映射（基本符合MVVM理念），并且Vue.js可以选择只使用其核心库，可以在已有的项目中轻松的加入Vue.js来使用。
+  https://blog.csdn.net/crazy_banana/article/details/71079925
+
+2.页面优化
+   把script放到body后面
+   给script加defer或者async的属性，但是这种做法只能应用于没有依赖引用的js文件
+   减少head里面的css资源
+		不要放太多base64在css里面，webpack构建工具常常会配置图片体积小于多少的直接转换成base64加载，这里是挺影响性能的，
+		一个是不能用到缓存机制，另一个就是加大了css的体积；个人建议上线项目直接把图片用cdn托管；
+   延迟加载图片
+		在页面加载完成后用js操作src，减少了页面加载图片的时间，首先把整个页面结构呈现给用户、
+   DNS解析优化
+		<link rel="dns-prefection" href="https://www.baidu.com">  
+		在head中写上几个link标签，对标签中的地址提前解析DNS，这个解析是并行发生的，不会堵塞页面渲染；
+   JS中减少利用闭包，会加深作用域链，提高变量调用的时间
+   减少事件处理程序，使用“事件委托模式”，即将时间处理程序设置在较高级别的dom元素上，使用event.target来区分时间发生的实际对象。
+   在页面跳转或关闭时主动移除事件处理程序，如document.getelementbyid(xxx).onclick = null;
+3.安全
+   跨站脚本攻击(XSS攻击)
+	XSS(Cross Site Scripting)，跨站脚本攻击。XSS是常见的Web攻击技术之一.所谓的跨站脚本攻击指得是:恶意攻击者往Web页面里注入恶意Script代码，
+	用户浏览这些网页时，就会执行其中的恶意代码，可对用户进行盗取cookie信息、会话劫持等各种攻击.
+	
+	对用户输入的数据做一定的过滤，要有validator。
+	将cookie设置为HttpOnly Cookie，不过这是后端的操作，因为设置后该cookie不能被js读取。
+	
+   跨站请求伪造(CSRF攻击)
+	CSRF攻击过程的受害者用户登录网站A，输入个人信息，在本地保存服务器生成的cookie。然后在A网站点击由攻击者构建一条恶意链接跳转到B网站,
+	然后B网站携带着的用户cookie信息去访问B网站.让A网站造成是用户自己访问的假相,从而来进行一些列的操作,常见的就是转账.
+	
+	验证码。应用程序和用户进行交互过程中，特别是账户交易这种核心步骤，强制用户输入验证码，才能完成最终请求。在通常情况下，
+	验证码够很好地遏制CSRF攻击。但增加验证码降低了用户的体验，网站不能给所有的操作都加上验证码。
+	Anti CSRF Token。目前比较完善的解决方案是加入Anti-CSRF-Token，即发送请求时在HTTP 请求中以参数的形式加入一个随机产生的token，并在服务器建立一个拦截器来验证这个token。
+	这里可以引入Oauth验证，每次对后端的请求都会携带access-token，后端会对access-token进行验证后才进行业务逻辑处理
+   
+   SQL注入攻击
+	SQL注入(SQL Injection)，应用程序在向后台数据库传递SQL(Structured Query Language，结构化查询语言)时，
+	攻击者将SQL命令插入到Web表单提交或输入域名或页面请求的查询字符串，最终达到欺骗服务器执行恶意的SQL命令.
+	
+	对用户输入的数据做一定的过滤，要有validator。这个感觉主要是后端要做处理
+
+4.Data-bind原理
+	针对view to model, 设置事件监听，view上的绑定值发生变化时，将新值设置到model的绑定值变量上。
+	针对model to view, 利用对象的访问器属性，设置set方法，一旦绑定值发生变化，则更新view的dom对象
+	https://www.cnblogs.com/kidney/p/6052935.html?utm_source=gold_browser_extension
+
+5.What is MVVM
+	 ViewModel 顾名思义，就是一个 Model of View，它是一个 View 信息的存储结构，ViewModel 和 View 上的信息是一一映射关系。
+	 随着 ViewModel 的变化，View 会自动变化,不需要从model直接操作dom对象，表示层和逻辑层分离
