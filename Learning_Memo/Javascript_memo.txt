@@ -8,3 +8,70 @@
 	之所以能访问闭包函数的父函数作用域正是因为闭包函数的作用域链中包含了父函数的活动对象。
 	即使父函数已经销毁，父函数的作用域链也销毁，但闭包函数的作用域链中依然保留着父函数的活动对象，所以父函数的活动对象依然保存在内存中，正是如此所以闭包函数可以继续访问父函数的变量。
 	闭包函数的this通常指向全局对象
+4.面向对象
+	4.1.工厂模式
+		function createPerson(name, age, job) {
+			var o = new Object();
+			o.name = name;
+			o.age = age;
+			o.job = job;
+			o.sayName = function () {
+				alert(o.name);
+			};
+			return o;
+		}
+		var person = createPerson("wuxun", 33, "programer");
+		缺点：无法识别对象的类型，instanceof 只能针对object返回true
+	4.2.构造函数模式
+		function Person(name, age, job) {
+			this.name = name;
+			this.age = age;
+			this.job = job;
+			this.sayName = function () {
+				alert(this.name);
+			};
+		}
+		var person = new Person('wuxun',33,'programer');
+		优点：可以识别对象类型, person instanceof Person; //true
+		缺点：构造函数创建的每一个对象中的属性都是独立存在于内存中的，如果属性是函数，会导致无谓的内存占用。
+	4.3.原型模式
+		我们创建的每个函数都有一个prototype属性，这个属性是一个指针，指向一个对象，这个对象的内容在所有实例中是共享的。
+		function Person () {
+		}
+		Person.prototype.name = 'wuxun';
+		Person.prototype.age = 33;
+		Person.prototype.job = 'programer';
+		Person.prototype.sayName = function () {
+			alert(this.name);
+		};
+		var person = new Person();
+		优点：原型中定义的属性在所有实例中共享。对于函数属性来说节省内存占用。
+		缺点：原型中定义的属性在所有实例中共享。对于原生类型或者引用类型属性来说，会导致数据不必要的在所有实例中共享。
+		
+	4.4.组合使用构造函数模式和原型模式（最主流的创建自定义类型的方法）
+		原理就是利用构造函数模式定义实例属性，利用原型模式定义需要共享的属性和函数。
+		function Person (name, age, job) {
+			this.name = name;
+			this.age = age;
+			this.job = job;
+		}
+		Person.prototype = {
+			constructor : Person;//这个很重要，因为利用字面量完全重新定义函数的prototype属性后，改属性中的constructor就会指向object，而不是原构造函数
+			sayName: function () {
+				alert(this.name);
+			}
+		}
+		var person = new Person();
+	4.5.稳妥构造函数模式
+		中心思想是不定义在实例中共享的属性，不引用this,不使用new.
+		function Person (name, age, job){
+			var o = new Object();
+			var perivateVar = 'private';
+			o.sayName = function() {
+				//不使用sayName函数的话，Person的实例是永远无法访问name和privateVar的
+				alert(name);
+				alert(perivateVar);
+			};
+			return o;
+		}
+		var person = Person('wuxun',33,'programer');
