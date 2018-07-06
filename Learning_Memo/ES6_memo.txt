@@ -56,3 +56,31 @@
 		let obj = {x: 1, y: 2};
 		`${obj.x + obj.y}`
 		// "3"
+4.函数的扩展
+  4.1.函数的参数可以设置默认值
+	function log(x, y = 'World') {
+	console.log(x, y);
+	}
+	
+	log('Hello') // Hello World
+	log('Hello', 'China') // Hello China
+	log('Hello', '') // Hello
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
