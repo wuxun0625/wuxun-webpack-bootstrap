@@ -89,15 +89,106 @@
 	
 	（4）不可以使用yield命令，因此箭头函数不能用作 Generator 函数。
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  4.3.双冒号运算符 
+	箭头函数可以绑定this对象，大大减少了显式绑定this对象的写法（call、apply、bind）。
+	但是，箭头函数并不适用于所有场合，所以现在有一个提案，提出了“函数绑定”（function bind）运算符，用来取代call、apply、bind调用。
+	函数绑定运算符是并排的两个冒号（::），双冒号左边是一个对象，右边是一个函数。该运算符会自动将左边的对象，作为上下文环境（即this对象），绑定到右边的函数上面。
+	foo::bar;
+	// 等同于
+	bar.bind(foo);
+	
+	foo::bar(...arguments);
+	// 等同于
+	bar.apply(foo, arguments);
+5.数组的扩展
+  5.1.什么是类似数组的对象
+    所谓类似数组的对象，本质特征只有一点，即必须有length属性。因此，任何有length属性的对象，都可以通过Array.from方法转为数组，而此时扩展运算符就无法转换。
+  5.2.Array.form()
+    Array.from方法用于将两类对象转为真正的数组：类似数组的对象（array-like object）和可遍历（iterable）的对象（包括 ES6 新增的数据结构 Set 和 Map）。
+      let arrayLike = {
+          '0': 'a',
+          '1': 'b',
+          '2': 'c',
+          length: 3
+      };
+      
+      // ES5的写法
+      var arr1 = [].slice.call(arrayLike); // ['a', 'b', 'c']
+      
+      // ES6的写法
+      let arr2 = Array.from(arrayLike); // ['a', 'b', 'c']
+    Array.from还可以接受第二个参数，作用类似于数组的map方法，用来对每个元素进行处理，将处理后的值放入返回的数组。
+      Array.from([1, 2, 3], (x) => x * x)
+	  // [1, 4, 9]
+  5.3.数组实例的find和findIndex
+    数组实例的find方法，用于找出第一个符合条件的数组成员。它的参数是一个回调函数，所有数组成员依次执行该回调函数，
+	直到找出第一个返回值为true的成员，然后返回该成员。如果没有符合条件的成员，则返回undefined。
+	[1, 4, -5, 10].find((n) => n < 0)
+	// -5
+	
+	[1, 5, 10, 15].find(function(value, index, arr) {
+	return value > 9;
+	}) // 10
+	上面代码中，find方法的回调函数可以接受三个参数，依次为当前的值、当前的位置和原数组。
+	
+	数组实例的findIndex方法的用法与find方法非常类似，返回第一个符合条件的数组成员的位置，如果所有成员都不符合条件，则返回-1。
+	
+	[1, 5, 10, 15].findIndex(function(value, index, arr) {
+	return value > 9;
+	}) // 2
+  5.4.数组实例的 entries()，keys() 和 values()
+	ES6 提供三个新的方法——entries()，keys()和values()——用于遍历数组。
+	它们都返回一个遍历器对象（详见《Iterator》一章），可以用for...of循环进行遍历，唯一的区别是keys()是对键名的遍历、values()是对键值的遍历，entries()是对键值对的遍历。
+  5.6.扩展运算符
+    扩展运算符（spread）是三个点（...）。它好比 rest 参数的逆运算，将一个数组转为用逗号分隔的参数序列。
+	该运算符主要用于函数调用。
+	
+	function push(array, ...items) {
+		array.push(...items);
+	}
+	
+	function add(x, y) {
+		return x + y;
+	}
+	
+	const numbers = [4, 38];
+	add(...numbers) // 42
+	上面代码中，array.push(...items)和add(...numbers)这两行，都是函数的调用，它们的都使用了扩展运算符。该运算符将一个数组，变为参数序列。
+6.对象的扩展
+  6.1.利用字面量定义对象属性的时候可以使用省略写法
+	function f(x, y) {
+	return {x, y};
+	}
+	
+	// 等同于
+	
+	function f(x, y) {
+	return {x: x, y: y};
+	}
+	
+	f(1, 2) // Object {x: 1, y: 2}
+	除了属性简写，方法也可以简写。
+	
+	const o = {
+	method() {
+		return "Hello!";
+	}
+	};
+	
+	// 等同于
+	
+	const o = {
+	method: function() {
+		return "Hello!";
+	}
+	};
+  6.2.Object.assign()
+	Object.assign方法用于对象的合并，将源对象（source）的所有可枚举属性，复制到目标对象（target）。
+	
+	const target = { a: 1 };
+	
+	const source1 = { b: 2 };
+	const source2 = { c: 3 };
+	
+	Object.assign(target, source1, source2);
+	target // {a:1, b:2, c:3}
