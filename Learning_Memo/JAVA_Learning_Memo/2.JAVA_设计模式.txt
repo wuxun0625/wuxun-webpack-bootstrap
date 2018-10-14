@@ -1,0 +1,79 @@
+1.工厂模式。
+  优点：解耦，如果程序中使用工厂模式来对类进行实现，当需要修改类名时只要修改工厂类，而不必修改每一行类的实现代码（new xxx()）。
+        如果使用类之前需要较多的准备工作，可以将准备工作放入工厂类中，进一步降低程序修改的成本。
+  1.1.普通工厂模式，就是建立一个工厂类，对实现了同一接口的一些类进行实例的创建。
+  1.2.多个工厂方法模式，是对普通工厂方法模式的改进，在普通工厂方法模式中，如果传递的字符串出错，则不能正确创建对象，而多个工厂方法模式是提供多个工厂方法，分别创建对象。
+  1.3.静态工厂方法模式，将上面的多个工厂方法模式里的方法置为静态的，不需要创建实例，直接调用即可。
+  1.4.抽象工厂模式，创建多个工厂类，这样一旦需要增加新的功能，直接增加新的工厂类就可以了，不需要修改之前的代码。基本上是所有工厂类实现一个抽象工厂基类或者接口。
+    //定义一个方法类接口
+    public interface Sender {  
+        public void Send();  
+    }  
+    //定义一个工厂类接口
+    public interface Provider {  
+        public Sender produce();  
+    }  
+    
+    两个方法实现类：
+    public class MailSender implements Sender {  
+        @Override  
+        public void Send() {  
+            System.out.println("this is mailsender!");  
+        }  
+    }  
+    public class SmsSender implements Sender {  
+        @Override  
+        public void Send() {  
+            System.out.println("this is sms sender!");  
+        }  
+    }
+    
+    两个工厂类：
+    public class SendMailFactory implements Provider {  
+          
+        @Override  
+        public Sender produce(){  
+            return new MailSender();  
+        }  
+    }  
+    public class SendSmsFactory implements Provider{  
+        @Override  
+        public Sender produce() {  
+            return new SmsSender();  
+        }  
+    }  
+    
+    //测试类
+    public class Test {  
+        public static void main(String[] args) {  
+            Provider provider = new SendMailFactory();  //利用多态
+            Sender sender = provider.produce();  //利用多态
+            sender.Send();  
+        }  
+    } 
+  
+  
+2.单例模式。（局部变量是线程安全的，不论其是否在单例或静态类中定义与否都是线程安全的）
+  一个类有且仅有一个实例，并且自行实例化向整个系统提供。
+  单例模式的类与静态类不同，单例模式的类依然是普通的java类，可以实现接口，可以被继承，方法可以被复写。
+  优点：省去了new操作符，降低了系统内存的使用频率，减轻GC压力。
+      private static Singleton instance = null; 
+      public static Singleton getInstance() {  
+        if (instance == null) {//只有当单例的实例没有创建的时候才创建一次，之后只返回已创建的实例  
+            instance = new Singleton();  
+        }  
+        return instance;  
+      } 
+	  // 如果考虑到线程安全问题，则可以用下记方法实现。
+	private static synchronized void syncInit() {  
+	    if (instance == null) {  
+            instance = new SingletonTest();  
+        }  
+    }  
+    public static SingletonTest getInstance() {  
+        if (instance == null) {  
+            syncInit();  
+        }  
+        return instance;  
+    }
+	

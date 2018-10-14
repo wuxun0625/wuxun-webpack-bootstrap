@@ -1,0 +1,237 @@
+1.特点：
+    1.1.无连接：无连接的含义是限制每次连接只处理一个请求。服务器处理完客户的请求，并收到客户的应答后，即断开连接。采用这种方式可以节省传输时间。
+    1.2.无状态：HTTP协议是无状态协议。无状态是指协议对于事务处理没有记忆能力。
+        缺少状态意味着如果后续处理需要前面的信息，则它必须重传，这样可能导致每次连接传送的数据量增大。
+        另一方面，在服务器不需要先前信息时它的应答就较快。
+
+2.URI和URL的区别
+    2.1.URI，是uniform resource identifier，统一资源标识符，用来唯一的标识一个资源。
+    2.2.URL是uniform resource locator，统一资源定位器，它是一种具体的URI，即URL可以用来标识一个资源，而且还指明了如何locate这个资源。
+    2.3.URN，uniform resource name，统一资源命名，是通过名字来标识资源，比如mailto:java-net@java.sun.com。
+
+3.HTTP之请求消息Request
+    HTTP Request由请求行（request line）、请求头部（header）、空行和请求数据四个部分组成。
+    例：
+        POST / HTTP1.1
+        Host:www.wrox.com
+        User-Agent:Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)
+        Content-Type:application/x-www-form-urlencoded
+        Content-Length:40
+        Connection: Keep-Alive
+        
+        name=Professional%20Ajax&publisher=Wiley
+
+    Tips:
+        Connection: Keep-Alive
+        若connection 模式为close，则服务器主动关闭TCP连接，客户端被动关闭连接，释放TCP连接;若connection 模式为keepalive，则该连接会保持一段时间，在该时间内可以继续接收请求
+    
+4.HTTP之响应消息Response
+    HTTP Response也由四个部分组成，分别是：状态行、消息报头、空行和响应正文。
+    例：
+        HTTP/1.1 200 OK
+        Date: Fri, 22 May 2009 06:07:21 GMT
+        Content-Type: text/html; charset=UTF-8
+        
+        <html>
+            <head></head>
+            <body>
+                    <!--body goes here-->
+            </body>
+        </html>
+
+5.HTTP之状态码
+    1xx：指示信息--表示请求已接收，继续处理
+    2xx：成功--表示请求已被成功接收、理解、接受
+    3xx：重定向--要完成请求必须进行更进一步的操作
+    4xx：客户端错误--请求有语法错误或请求无法实现
+    5xx：服务器端错误--服务器未能实现合法的请求
+
+6.HTTP请求方法
+    HTTP1.0定义了三种请求方法： GET, POST 和 HEAD方法。
+    HTTP1.1新增了五种请求方法：OPTIONS, PUT, DELETE, TRACE 和 CONNECT 方法。
+    
+        GET     请求指定的页面信息，并返回实体主体。
+        HEAD     类似于get请求，只不过返回的响应中没有具体的内容，用于获取报头
+        POST     向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST请求可能会导致新的资源的建立和/或已有资源的修改。
+        PUT     从客户端向服务器传送的数据取代指定的文档的内容。
+        DELETE      请求服务器删除指定的页面。
+        CONNECT     HTTP/1.1协议中预留给能够将连接改为管道方式的代理服务器。
+        OPTIONS     允许客户端查看服务器的性能。
+        TRACE     回显服务器收到的请求，主要用于测试或诊断。
+
+7.HTTP工作原理
+    7.1.客户端连接到Web服务器
+        一个HTTP客户端，通常是浏览器，与Web服务器的HTTP端口（默认为80）建立一个TCP套接字连接。例如，http://www.oakcms.cn。
+    7.2.发送HTTP请求
+        通过TCP套接字，客户端向Web服务器发送一个文本的请求报文，一个请求报文由请求行、请求头部、空行和请求数据4部分组成。
+    7.3.服务器接受请求并返回HTTP响应
+        Web服务器解析请求，定位请求资源。服务器将资源复本写到TCP套接字，由客户端读取。一个响应由状态行、响应头部、空行和响应数据4部分组成。
+    7.4.释放连接TCP连接
+        若connection 模式为close，则服务器主动关闭TCP连接，客户端被动关闭连接，释放TCP连接;若connection 模式为keepalive，则该连接会保持一段时间，在该时间内可以继续接收请求;
+        客户端浏览器解析HTML内容
+        客户端浏览器首先解析状态行，查看表明请求是否成功的状态代码。然后解析每一个响应头，响应头告知以下为若干字节的HTML文档和文档的字符集。客户端浏览器读取响应数据HTML，根据HTML的语法对其进行格式化，并在浏览器窗口中显示。
+        
+8.HTTP heade
+    8.1.Reques header
+        8.1.1.Cache 头域
+            8.1.1.1.If-Modified-Since
+                作用： 把浏览器端缓存页面的最后修改时间发送到服务器去，服务器会把这个时间与服务器上实际文件的最后修改时间进行对比。
+                如果时间一致，那么返回304，客户端就直接使用本地缓存文件。
+                如果时间不一致，就会返回200和新的文件内容。
+                客户端接到之后，会丢弃旧文件，把新文件缓存起来，并显示在浏览器中.
+            8.1.1.2.If-None-Match
+                作用: If-None-Match和ETag一起工作，工作原理是在HTTP Response中添加ETag信息。 
+                当用户再次请求该资源时，将在HTTP Request 中加入If-None-Match信息(ETag的值)。
+                如果服务器验证资源的ETag没有改变（该资源没有更新），将返回一个304状态告诉客户端使用本地缓存文件。
+                否则将返回200状态和新的资源和Etag.  使用这样的机制将提高网站的性能
+            8.1.1.3.Pragma
+                作用： 防止页面被缓存， 在HTTP/1.1版本中，它和Cache-Control:no-cache作用一模一样
+                Pargma只有一个用法， 例如： Pragma: no-cache
+                注意: 在HTTP/1.0版本中，只实现了Pragema:no-cache, 没有实现Cache-Control
+            8.1.1.4.Cache-Control
+                作用: 这个是非常重要的规则。 这个用来指定Response-Request遵循的缓存机制。各个指令含义如下
+                Cache-Control:Public   可以被任何缓存所缓存（）
+                Cache-Control:Private     内容只缓存到私有缓存中
+                Cache-Control:no-cache  所有内容都不会被缓存
+		8.1.2.Client 头域
+			8.1.2.1.Accept
+				作用： 浏览器端可以接受的媒体类型,
+				例如：  Accept: text/html  代表浏览器可以接受服务器回发的类型为 text/html  也就是我们常说的html文档,
+				如果服务器无法返回text/html类型的数据,服务器应该返回一个406错误(non acceptable)
+				通配符 * 代表任意类型
+				例如  Accept: */*  代表浏览器可以处理所有类型,(一般浏览器发给服务器都是发这个)
+			8.1.2.2.Accept-Encoding：
+				作用： 浏览器申明自己接收的编码方法，通常指定压缩方法，是否支持压缩，支持什么压缩方法（gzip，deflate），（注意：这不是指字符编码）;
+				例如： Accept-Encoding: gzip, deflate
+			8.1.2.3.Accept-Language
+				作用： 浏览器申明自己接收的语言。 
+				语言跟字符集的区别：中文是语言，中文有多种字符集，比如big5，gb2312，gbk等等；
+				例如： Accept-Language: en-us
+			8.1.2.4.User-Agent
+				作用：告诉HTTP服务器， 客户端使用的操作系统和浏览器的名称和版本.
+				例如： User-Agent: Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; CIBA; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; .NET4.0C; InfoPath.2; .NET4.0E)
+			8.1.2.5.Accept-Charset
+				作用：浏览器申明自己接收的字符集，这就是本文前面介绍的各种字符集和字符编码，如gb2312，utf-8（通常我们说Charset包括了相应的字符编码方案）
+		8.1.3.Cookie/Login 头域
+			8.1.3.1.Cookie:
+				作用： 最重要的header, 将cookie的值发送给HTTP 服务器
+        
+        8.1.4.Entity头域
+			8.1.4.1Content-Length
+				作用：发送给HTTP服务器数据的长度。
+				例如： Content-Length: 38
+ 
+			8.1.4.2Content-Type
+				作用：在Http协议消息头中，使用Content-Type来表示具体请求中的媒体类型信息。
+				例如：Content-Type: application/x-www-form-urlencoded
+				常见的媒体格式类型如下：
+					text/html ： HTML格式
+					text/plain ：纯文本格式      
+					text/xml ：  XML格式
+					image/gif ：gif图片格式    
+					image/jpeg ：jpg图片格式 
+					image/png：png图片格式
+   				以application开头的媒体格式类型：
+					application/xhtml+xml ：XHTML格式
+					application/xml     ： XML数据格式
+					application/atom+xml  ：Atom XML聚合格式    
+					application/json    ： JSON数据格式
+					application/pdf       ：pdf格式  
+					application/msword  ： Word文档格式
+					application/octet-stream ： 二进制流数据（如常见的文件下载）
+					application/x-www-form-urlencoded ： <form encType=””>中默认的encType，form表单数据被编码为key/value格式发送到服务器（表单默认的提交数据的格式）
+				另外一种常见的媒体格式是上传文件之时使用的：
+					multipart/form-data ： 需要在表单中进行文件上传时，就需要使用该格式
+		
+		8.1.5.Miscellaneous 头域
+			Referer:
+				作用： 提供了Request的上下文信息的服务器，告诉服务器我是从哪个链接过来的，比如从我主页上链接到一个朋友那里，他的服务器就能够从HTTP Referer中统计出每天有多少用户点击我主页上的链接访问他的网站。
+				例如: Referer:http://translate.google.cn/?hl=zh-cn&tab=wT
+		
+		8.1.6.Transport 头域
+			Connection
+				例如：　Connection: keep-alive   当一个网页打开完成后，客户端和服务器之间用于传输HTTP数据的TCP连接不会关闭，
+						如果客户端再次访问这个服务器上的网页，会继续使用这一条已经建立的连接
+				例如：  Connection: close  代表一个Request完成后，客户端和服务器之间用于传输HTTP数据的TCP连接会关闭， 当客户端再次发送Request，需要重新建立TCP连接。
+			 
+			Host（发送请求时，该报头域是必需的）
+				作用: 请求报头域主要用于指定被请求资源的Internet主机和端口号，它通常从HTTP URL中提取出来的
+				例如: 我们在浏览器中输入：http://www.guet.edu.cn/index.html
+				浏览器发送的请求消息中，就会包含Host请求报头域，如下：
+				Host：http://www.guet.edu.cn
+				此处使用缺省端口号80，若指定了端口号，则变成：Host：指定端口号
+    8.2.Response header
+		8.2.1.Cache头域
+			Date
+				作用:  生成消息的具体时间和日期
+				例如：　Date: Sat, 11 Feb 2012 11:35:14 GMT 
+				
+			Expires
+				作用: 浏览器会在指定过期时间内使用本地缓存
+				例如: Expires: Tue, 08 Feb 2022 11:35:14 GMT
+
+			Vary
+				作用：
+				例如: Vary: Accept-Encoding
+        
+		8.2.2.Cookie/Login 头域
+			P3P
+				作用: 用于跨域设置Cookie, 这样可以解决iframe跨域访问cookie的问题
+				例如: P3P: CP=CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR
+ 
+			Set-Cookie
+				作用： 非常重要的header, 用于把cookie 发送到客户端浏览器， 每一个写入cookie都会生成一个Set-Cookie.
+				例如: Set-Cookie: sc=4c31523a; path=/; domain=.acookie.taobao.com
+        
+		8.2.3.Entity头域
+			ETag
+				作用:  和If-None-Match 配合使用。 （实例请看上节中If-None-Match的实例）
+				例如: ETag: "03f2b33c0bfcc1:0"
+ 
+			Last-Modified:
+				作用： 用于指示资源的最后修改日期和时间。（实例请看上节的If-Modified-Since的实例）
+				例如: Last-Modified: Wed, 21 Dec 2011 09:09:10 GMT
+ 
+			Content-Type
+				作用：WEB服务器告诉浏览器自己响应的对象的类型和字符集,
+				例如:
+				Content-Type: text/html; charset=utf-8
+				Content-Type:text/html;charset=GB2312
+				Content-Type: image/jpeg
+ 
+			Content-Length
+				指明实体正文的长度，以字节方式存储的十进制数字来表示。在数据下行的过程中，Content-Length的方式要预先在服务器中缓存所有数据，然后所有数据再一股脑儿地发给客户端。
+				例如: Content-Length: 19847
+ 
+			Content-Encoding
+				WEB服务器表明自己使用了什么压缩方法（gzip，deflate）压缩响应中的对象。
+				例如：Content-Encoding：gzip
+ 
+			Content-Language
+				作用： WEB服务器告诉浏览器自己响应的对象的语言者
+				例如： Content-Language:da
+		
+		8.2.4.Miscellaneous 头域
+			Server:
+				作用：指明HTTP服务器的软件信息
+				例如:Server: Microsoft-IIS/7.5
+			 
+			X-AspNet-Version:
+				作用：如果网站是用ASP.NET开发的，这个header用来表示ASP.NET的版本
+				例如: X-AspNet-Version: 4.0.30319
+				
+			X-Powered-By:
+				作用：表示网站是用什么技术开发的
+				例如： X-Powered-By: ASP.NET
+				
+		8.2.5.Transport头域
+			Connection
+				例如：　Connection: keep-alive   当一个网页打开完成后，客户端和服务器之间用于传输HTTP数据的TCP连接不会关闭，
+						如果客户端再次访问这个服务器上的网页，会继续使用这一条已经建立的连接
+				例如：  Connection: close  代表一个Request完成后，客户端和服务器之间用于传输HTTP数据的TCP连接会关闭， 
+						当客户端再次发送Request，需要重新建立TCP连接。
+		
+		8.2.6.Location头域
+			Location
+				作用： 用于重定向一个新的位置, 包含新的URL地址
+				实例请看304状态实例

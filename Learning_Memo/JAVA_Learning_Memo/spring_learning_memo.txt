@@ -1,0 +1,35 @@
+Key feature of Spring boot
+  Spring boot provides lots of starter package depandency to simplfy depandency configuration.
+  Spring boot provide autoconfig to automatically config bean with xml or java config file.
+  Spring boot provide CLI, it can directly run groovy file with spring feature help you to learn spring
+  Spring boot provide actuator for spring boot application management(Like get current configed bean, current thread info)
+
+
+1.依赖注入(Dependency Injection, DI)
+  Unlike triditional way that when we want to call another class's method we need to create a instance manually in our current class then call the method.
+  This will cause current class be depent on another class, when that class has some changs then current class may also need to change.
+  DI will use another way to call another class's method.
+  It just ask current class to define a interface then call that interface's method.
+  The rest of the things is to config a xml file or a java config file or even use spring's autowired feature to create the target class's instance when current class be instantiated.
+  The good points for DI is that:
+    1.Reducing coupling, when we want use another class to instead of current be used one, we just need to change the config of spring and create a new class by implement target interface.
+	  With this we do not need to change current class's code. Especally when we have handurds of classes be used in current class.
+	2.Easy for UT on current class since you just need to mock a interface not a specific class.
+  https://zhidao.baidu.com/question/399874366.html
+
+2.控制反转（Inversion of Control，IOC）
+  Befor IOC when we want to use a method of another class. We need to manually create the instance of that class.
+  The controller is us.
+  By IOC, since we use DI then the controller is not us the create instance of another class will hand over to Spring context.
+  Spring context will automatically create instance when current class be instantiated
+  https://www.cnblogs.com/xxzhuang/p/5948902.html
+  
+3.面向切面编程(Aspect Oriented Programming, AOP)
+  When we implement different bussiness logic we found that between different bussiness logic there are always some duplicate logic.
+  Like method start log, method end log or try catch exception and write into log.
+  AOP provides a capability to define a aspect class to define these duplicate logic onece and be used for all other class's method.
+  With AOP developer can only considerate about just bussiness logic without be botherd by those common logic but nothing related to bussiness logic.
+  Infact we can use AOP in bussiness logic too like in a DAO before we want to update a DB table we always need to lock the target records.
+  And we can use AOP to do the data lock execution and leave developer to just need implement the update logic.
+  
+  

@@ -1,0 +1,95 @@
+1.冒泡排序
+    a.比较相邻的元素。如果第一个比第二个大，就交换他们两个。
+    b.对每一对相邻元素作同样的工作，从开始第一对到结尾的最后一对。在这一点，最后的元素应该会是最大的数。
+    c.针对所有的元素重复以上的步骤，除了最后一个。
+    d.持续每次对越来越少的元素重复上面的步骤，直到没有任何一对数字需要比较。
+        package popup;
+        
+        import java.util.Arrays;
+        import java.util.Random;
+        
+        public class popup {
+        
+        	public static void main(String[] args) throws InterruptedException {
+        		Random random = new Random();
+        		int[] iArray = new int[20];
+        		for (int i=0; i < 20 ; i++) {
+        			iArray[i] = random.nextInt(100);
+        		}
+        		System.out.println("生成时的数组：" + Arrays.toString(iArray));
+        		
+        		for(int i = 0; i<20 ; i++) {
+        			for(int j = 0; j<19-i; j++){
+        				if (iArray[j] > iArray[j+1]) {
+        					int tmp = iArray[j];
+        					iArray[j] = iArray[j+1];
+        					iArray[j+1] = tmp;
+        					System.out.println("正在排序：" + Arrays.toString(iArray));
+        					Thread.sleep(500);
+        				}
+        			}
+        		}
+        
+        	}
+        
+        }
+2.快速排序
+    通过一趟排序将要排序的数据分割成独立的两部分，其中一部分的所有数据都比另外一部分的所有数据都要小，
+	然后再按此方法对这两部分数据分别进行快速排序，整个排序过程可以递归进行，以此达到整个数据变成有序序列。
+	1）设置两个变量i、j，排序开始的时候：i=0，j=N-1；
+    2）以第一个数组元素作为关键数据，赋值给key，即key=A[0]；
+    3）从j开始向前搜索，即由后开始向前搜索(j--)，找到第一个小于key的值A[j]，将A[j]和A[i]互换；
+    4）从i开始向后搜索，即由前开始向后搜索(i++)，找到第一个大于key的A[i]，将A[i]和A[j]互换；
+    5）重复第3、4步，直到i=j； (3,4步中，没找到符合条件的值，即3中A[j]不小于key,4中A[i]不大于key的时候改变j、i的值，使得j=j-1，i=i+1，直至找到为止。
+	   找到符合条件的值，进行交换的时候i， j指针位置不变。另外，i==j这一过程一定正好是i+或j-完成的时候，此时令循环结束）。
+        package quickSort;
+        
+        import java.util.Arrays;
+        import java.util.Random;
+        
+        public class quickSort {
+        
+        	public static void main(String[] args) {
+        		Random random = new Random();
+        		int[] iArray = new int[6];
+        		for (int i = 0; i < 6; i++) {
+        			iArray[i] = random.nextInt(100);
+        		}
+        		System.out.println("生成时的数组：" + Arrays.toString(iArray));
+        
+        		// 开始排序
+        		sort(iArray, 0, iArray.length - 1);
+        		System.out.println("排序完成的数组：" + Arrays.toString(iArray));
+        
+        	}
+        
+        	private static void sort(int[] arrayInt, int i, int j) {
+        		//这个判断是为了递归时防止数组下标越界
+        		if (i < j) {
+        			int x = arrayInt[i];
+        			int l = i;
+        			int h = j;
+        			while (l < h) {
+        				while (l < h && arrayInt[h] >= x) {
+        					h--;
+        				}
+        				if (l < h) {
+        					arrayInt[l] = arrayInt[h];
+        					l++;
+        				}
+        				while (l < h && arrayInt[l] < x) {
+        					l++;
+        				}
+        				if (l < h) {
+        					arrayInt[h] = arrayInt[l];
+        					h--;
+        				}
+        			}
+        			arrayInt[l] = x;
+        			System.out.println("排序中的数组：" + Arrays.toString(arrayInt));
+        			sort(arrayInt, i, l - 1);
+        			sort(arrayInt, l + 1, j);
+        		}
+        	}
+        }
+        

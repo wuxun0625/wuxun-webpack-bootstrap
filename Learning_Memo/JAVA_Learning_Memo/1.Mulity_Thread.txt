@@ -1,0 +1,544 @@
+0.进程与线程
+  进程是操作系统的基本分配单元，拥有独立的资源。一个进程可以拥有多个线程，线程是程序调度执行的单元。
+  进程之间的资源是完全独立的，线程之间共享同一进程中的资源。
+
+1.Java多线程的创建及启动
+  1.1.继承Thread类，重写该类的run()方法。
+    class MyThread extends Thread {
+        
+        private int i = 0;
+    
+        @Override
+        public void run() {
+            for (i = 0; i < 100; i++) {
+                System.out.println(Thread.currentThread().getName() + " " + i);
+            }
+        }
+    }
+	调用MyThread时，需要实例化MyThread，然后调用实例的start()方法。
+
+  1.2.实现Runnable接口，并重写该接口的run()方法，创建Runnable实现类的实例，并以此实例作为Thread类的target来创建Thread对象，该Thread对象才是真正的线程对象。
+    由于是接口，一个类可以实现多个接口，且很容易实现资源共享，所以一般编写多线程程序时，普遍使用Runnable接口来实现。
+    class MyRunnable implements Runnable {
+        private int i = 0;
+    
+        @Override
+        public void run() {
+            for (i = 0; i < 100; i++) {
+                System.out.println(Thread.currentThread().getName() + " " + i);
+            }
+        }
+    }
+    // 创建一个Runnable实现类的对象
+    Runnable myRunnable = new MyRunnable(); 
+    // 将myRunnable作为Thread target创建新的线程，此时如果我们定义多个thread对象，并使用同一个myRunnalbe对象来创建。则thread对象共享了myrunnable对象的资源。
+    Thread thread1 = new Thread(myRunnable);
+
+  1.3.使用Callable和Future接口创建线程。具体是创建Callable接口的实现类，并实现call()方法。
+      并使用FutureTask类来包装Callable实现类的对象，且以此FutureTask对象作为Thread对象的target来创建线程。
+    class MyCallable implements Callable<Integer> {
+        private int i = 0;
+    
+        // 与run()方法不同的是，call()方法具有返回值
+        @Override
+        public Integer call() {
+            int sum = 0;
+            for (; i < 100; i++) {
+                System.out.println(Thread.currentThread().getName() + " " + i);
+                sum += i;
+            }
+            return sum;// 返回值，thread或者runnable不具有返回值
+        }
+    
+    }
+
+    Callable<Integer> myCallable = new MyCallable();    // 创建MyCallable对象
+    FutureTask<Integer> ft = new FutureTask<Integer>(myCallable); //使用FutureTask来包装MyCallable对象
+    Thread thread = new Thread(ft);
+
+    FutureTask类实际上是同时实现了Runnable和Future接口，由此才使得其具有Future和Runnable双重特性。
+    通过Runnable特性，可以作为Thread对象的target，而Future特性，使得其可以取得新创建线程中的call()方法的返回值。
+
+  1.4.Java多线程的阻塞状态与线程控制（https://blog.csdn.net/haozhugogo/article/details/55050681）
+    1.4.1.join()
+        join —— 让一个线程等待另一个线程完成才继续执行。如A线程线程执行体中调用B线程的join()方法，则A线程被阻塞，知道B线程执行完为止，A才能得以继续执行。
+           public class ThreadTest {
+           
+               public static void main(String[] args) {
+           
+                   MyRunnable myRunnable = new MyRunnable();
+                   Thread thread = new Thread(myRunnable);
+           
+                   for (int i = 0; i < 100; i++) {
+                       System.out.println(Thread.currentThread().getName() + " " + i);
+                       if (i == 30) {
+                           thread.start();
+                           try {
+                               thread.join();    // main线程需要等待thread线程执行完后才能继续执行
+                           } catch (InterruptedException e) {
+                               e.printStackTrace();
+                           }
+                       }
+                   }
+               }
+           }
+
+    1.4.2.sleep()
+        让当前的正在执行的线程暂停指定的时间，并进入阻塞状态。
+
+    1.4.3.后台线程（Daemon Thread）
+        概念/目的：后台线程主要是为其他线程（相对可以称之为前台线程）提供服务，或“守护线程”。如JVM中的垃圾回收线程。
+        当所有的前台线程都进入死亡状态时，后台线程会自动死亡
+        设置后台线程：调用Thread对象的setDaemon(true)方法可以将指定的线程设置为后台线程。
+        调用setDeamon(true)方法将前台线程设置为后台线程时，需要在start()方法调用之前。
+            myThread.setDaemon(true);
+            myThread.start();
+
+    1.4.4.改变线程的优先级/setPriority()
+        每个线程在执行时都具有一定的优先级，优先级高的线程具有较多的执行机会。每个线程默认的优先级都与创建它的线程的优先级相同。main线程默认具有普通优先级。
+        设置线程优先级：setPriority(int priorityLevel)。参数priorityLevel范围在1-10之间，常用的有如下三个静态常量值：
+        MAX_PRIORITY:10
+        MIN_PRIORITY:1
+        NORM_PRIORITY:5
+        获取线程优先级：getPriority()。
+            myThread.setPriority(Thread.MAX_PRIORITY);
+    
+    1.4.5.线程让步：yield()
+        yield()方法还与线程优先级有关，当某个线程调用yiled()方法从运行状态转换到就绪状态后，CPU从就绪状态线程队列中只会选择与该线程优先级相同或优先级更高的线程去执行。
+            public class ThreadTest {
+            
+                public static void main(String[] args) {
+                    Thread myThread1 = new MyThread1();
+                    Thread myThread2 = new MyThread2();
+                    myThread1.setPriority(Thread.MAX_PRIORITY);
+                    myThread2.setPriority(Thread.MIN_PRIORITY);
+                    for (int i = 0; i < 100; i++) {
+                        System.out.println("main thread i = " + i);
+                        if (i == 20) {
+                            myThread1.start();
+                            myThread2.start();
+                            Thread.yield();//将当前main的进程让步给其他进程，这里应当是myThread1优先执行。
+                        }
+                    }
+                }
+            
+            }
+  1.5.线程安全。
+    1.5.1.Synchronized线程锁。
+        Synchronized总共有三种用法：
+        （1）修饰普通方法
+            public synchronized void method1(){}
+　　    （2）修饰静态方法
+            对静态方法的同步本质上是对类的同步（静态方法本质上是属于类的方法，而不是对象上的方法），所以即使对于不同的对象，
+            但是它们都属于同一个类的实例，所以也只能顺序的执行，不能并发执行。
+　　    （3）修饰代码块
+            synchronized (this) {
+                System.out.println("Method 1 execute");
+                Thread.sleep(3000);
+            }
+            对于不同的线程，可以并发执行，不过对于被静态代码块，其执行的时候依然是顺序的。注意(this),这是指使用当前类对象作为共享资源。也可以是其他任何object
+            也就是使用Synchronized线程锁一定是对某个对象的资源共享进行限制。
+
+    1.5.2.Lock对象同步锁
+        上面我们可以看出，对同步锁对象的选择需要非常小心。
+        使用Lock对象同步锁可以方便的解决此问题，唯一需要注意的一点是Lock对象需要与资源对象同样具有一对一的关系。
+        即针对同一个对象的多个线程会被同步锁约束，但是针对不同对象的多个线程则无法被同步锁约束。
+        锁是可重入的，因为线程可以重复的获得已经持有的锁。锁保持一个持有计数来跟踪对Lock方法的嵌套调用。线程每一次调用都用unlock来释放锁。
+            class X {
+                
+                // 显示定义Lock同步锁对象，此对象与共享资源具有一对一关系
+                private final Lock lock = new ReentrantLock();
+                
+                public void m(){
+                    // 加锁
+                    lock.lock();
+                    
+                    //...  需要进行线程安全同步的代码
+                    
+                    // 释放Lock锁，如果不手动释放，则其他线程永远也不会被解锁
+                    lock.unlock();
+                }
+                
+            }
+    1.5.3.Lock读写锁
+        读和写是互斥的，写和写是互斥的，但是读和读是不需要互斥
+        Lock锁与类对象一一对应，所以并不是lock一个程序块，而是
+            class Data {      
+                private int data;// 共享数据  
+                private ReadWriteLock rwl = new ReentrantReadWriteLock();     
+                public void set(int data) {  
+                    rwl.writeLock().lock();// 取到写锁  
+                    try {  
+                        System.out.println(Thread.currentThread().getName() + "准备写入数据");  
+                        try {  
+                            Thread.sleep(20);  
+                        } catch (InterruptedException e) {  
+                            e.printStackTrace();  
+                        }  
+                        this.data = data;  
+                        System.out.println(Thread.currentThread().getName() + "写入" + this.data);  
+                    } finally {  
+                        rwl.writeLock().unlock();// 释放写锁  
+                    }  
+                }     
+                public void get() {  
+                    rwl.readLock().lock();// 取到读锁  
+                    try {  
+                        System.out.println(Thread.currentThread().getName() + "准备读取数据");  
+                        try {  
+                            Thread.sleep(20);  
+                        } catch (InterruptedException e) {  
+                            e.printStackTrace();  
+                        }  
+                        System.out.println(Thread.currentThread().getName() + "读取" + this.data);  
+                    } finally {  
+                        rwl.readLock().unlock();// 释放读锁  
+                    }  
+                }  
+            }  
+    1.5.4.生产者消费者模型
+        1.5.4.1.wait() / notify()方法
+            wait() / nofity()方法是基类Object的两个方法，也就意味着所有Java类都会拥有这两个方法，这样，我们就可以为任何对象实现同步机制。
+            也就是说wait() / nofity()方法是针对同一个对象进行资源共享的方法，如果对不同对象使用wait() / nofity()方法是没有意义的。
+            wait()方法：当缓冲区已满/空时，生产者/消费者线程停止自己的执行，放弃锁，使自己处于等等状态，让其他线程执行。
+            notify()方法：当生产者/消费者向缓冲区放入/取出一个产品时，向其他等待的线程发出可执行的通知，同时放弃锁，使自己处于等待状态。
+			
+            1、wait()、notify/notifyAll() 方法是Object的本地final方法，无法被重写。
+            2、wait()使当前线程阻塞，前提是 必须先获得锁，一般配合synchronized 关键字使用，即，一般在synchronized 同步代码块里使用 wait()、notify/notifyAll() 方法。
+            3、 由于 wait()、notify/notifyAll() 在synchronized 代码块执行，说明当前线程一定是获取了锁的。
+            当线程执行wait()方法时候，会释放当前的锁，然后让出CPU，进入等待状态。
+            只有当 notify/notifyAll() 被执行时候，才会唤醒一个或多个正处于等待状态的线程，然后继续往下执行，直到执行完synchronized 代码块的代码或是中途遇到wait() ，再次释放锁。
+            也就是说，notify/notifyAll() 的执行只是唤醒沉睡的线程，而不会立即释放锁，锁的释放要看代码块的具体执行情况。所以在编程中，
+			尽量在使用了notify/notifyAll() 后立即退出临界区，以唤醒其他线程 
+            4、wait() 需要被try catch包围，中断也可以使wait等待的线程唤醒。
+            5、notify 和wait 的顺序不能错，如果A线程先执行notify方法，B线程在执行wait方法，那么B线程是无法被唤醒的。
+            6、notify 和 notifyAll的区别
+            notify方法只唤醒一个等待（对象的）线程并使该线程开始执行。所以如果有多个线程等待一个对象，这个方法只会唤醒其中一个线程，选择哪个线程取决于操作系统对多线程管理的实现。
+			notifyAll 会唤醒所有等待(对象的)线程，尽管哪一个线程将会第一个处理取决于操作系统的实现。
+			如果当前情况下有多个线程需要被唤醒，推荐使用notifyAll 方法。
+			比如在生产者-消费者里面的使用，每次都需要唤醒所有的消费者或是生产者，以判断程序是否可以继续往下执行。
+			
+			
+                // 如果仓库剩余容量不足  
+                while (list.size() + num > MAX_SIZE)  
+                    try  
+                    {  
+                        // 由于条件不满足，生产阻塞  
+                        list.wait();  
+                    }  
+                    catch (InterruptedException e)  
+                    {  
+                        e.printStackTrace();  
+                    }  
+                }  
+                // 生产条件满足情况下，生产num个产品  
+                for (int i = 1; i <= num; ++i)  
+                {  
+                    list.add(new Object());  
+                }  
+                
+                System.out.println("【已经生产产品数】:" + num + "/t【现仓储量为】:" + list.size());  
+                // 通知其他线程停止阻塞。
+                list.notifyAll();
+        1.5.4.2.await() / signal()方法（条件对象）
+            功能基本上和wait() / nofity()相同，完全可以取代它们，但是它们和新引入的锁定机制Lock直接挂钩，具有更大的灵活性。
+            通过在Lock对象上调用newCondition()方法，将条件变量和一个锁对象进行绑定，进而控制并发程序访问竞争资源的安全。
+            一旦一个线程调用await方法，他进入该条件的等待集。当该锁可用时，该线程不能马上解除阻塞。相反，它处于阻塞状态，直到另一个线程调用同一条件上的signalAll方法时为止。
+                // 锁  
+                private final Lock lock = new ReentrantLock();  
+                // 仓库满的条件变量  
+                private final Condition full = lock.newCondition();  
+                // 仓库空的条件变量  
+                private final Condition empty = lock.newCondition();  
+                // 生产num个产品  
+                public void produce(int num)  
+                {  
+                    // 获得锁
+                    lock.lock();  
+                    // 如果仓库剩余容量不足  
+                    while (list.size() + num > MAX_SIZE)  
+                    {  
+                        try  
+                        {  
+                            // 由于条件不满足，生产阻塞  
+                            full.await();  
+                        }  
+                        catch (InterruptedException e)  
+                        {  
+                            e.printStackTrace();  
+                        }  
+                    }  
+                
+                    // 生产条件满足情况下，生产num个产品  
+                    for (int i = 1; i <= num; ++i)  
+                    {  
+                        list.add(new Object());  
+                    }  
+                
+                    // 唤醒其他所有线程  
+                    full.signalAll();  
+                    empty.signalAll();  
+                
+                    // 释放锁  
+                    lock.unlock();  
+                }
+		1.5.4.3.BlockingQueue阻塞队列方法
+            BlockingQueue是JDK5.0的新增内容，它是一个已经在内部实现了同步的队列，实现方式采用的是我们第2种await() / signal()方法。
+			它可以在生成对象时指定容量大小。它用于阻塞操作的是put()和take()方法。
+            put()方法：类似于我们上面的生产者线程，容量达到最大时，自动阻塞。
+            take()方法：类似于我们上面的消费者线程，容量为0时，自动阻塞。
+                // 仓库最大存储量  
+                private final int MAX_SIZE = 100;  
+                // 仓库存储的载体  
+                private LinkedBlockingQueue<Object> list = new LinkedBlockingQueue<Object>(100);  
+                // 生产num个产品  
+                public void produce(int num)  
+                {  
+                    // 如果仓库剩余容量为0  
+                    if (list.size() == MAX_SIZE)  
+                    {  
+                        System.out.println("【库存量】:" + MAX_SIZE + "/t暂时不能执行生产任务!");  
+                    }  
+                    // 生产条件满足情况下，生产num个产品  
+                    for (int i = 1; i <= num; ++i)  
+                    {  
+                        try  
+                        {  
+                            // 放入产品，自动阻塞  
+                            list.put(new Object());  
+                        }  
+                        catch (InterruptedException e)  
+                        {  
+                            e.printStackTrace();  
+                        }  
+                        System.out.println("【现仓储量为】:" + list.size());  
+                    }  
+                }  
+                
+                // 消费num个产品  
+                public void consume(int num)  
+                {  
+                    // 如果仓库存储量不足  
+                    if (list.size() == 0)  
+                    {  
+                        System.out.println("【库存量】:0/t暂时不能执行生产任务!");  
+                    }  
+                    // 消费条件满足情况下，消费num个产品  
+                    for (int i = 1; i <= num; ++i)  
+                    {  
+                        try  
+                        {  
+                            // 消费产品，自动阻塞  
+                            list.take();  
+                        }  
+                        catch (InterruptedException e)  
+                        {  
+                            e.printStackTrace();  
+                        }  
+                    }  
+                    System.out.println("【现仓储量为】:" + list.size());  
+                }
+  1.6.线程池
+    在Java中可以通过线程池来达到线程可以复用，就是执行完一个任务，并不被销毁，而是可以继续执行其他的任务
+	    1.6.1.ThreadPoolExecutor构造器中各个参数的含义：
+	        corePoolSize：核心池的大小，正常状态下线程池中最多长时间保有的线程数。
+	        maximumPoolSize：线程池最大线程数，当所需线程数超过corePoolSize数时，可临时增加的线程数量。
+	        keepAliveTime：表示线程没有任务执行时最多保持多久时间会终止。默认情况下，只有当线程池中的线程数大于corePoolSize时，keepAliveTime才会起作用。
+	        unit：参数keepAliveTime的时间单位。
+	        workQueue：一个阻塞队列，用来存储等待执行的任务（LinkedBlockingQueue）
+	        threadFactory：线程工厂，主要用来创建线程
+	        handler：表示当拒绝处理任务时的策略
+	
+	    1.6.2.在ThreadPoolExecutor类中有几个非常重要的方法：
+		    execute()方法是ThreadPoolExecutor的核心方法，通过这个方法可以向线程池提交一个任务，交由线程池去执行。
+	        submit()方法是这个方法也是用来向线程池提交任务的，但是它和execute()方法不同，它能够返回任务执行的结果
+	        shutdown()和shutdownNow()是用来关闭线程池的。
+	
+	    1.6.3.线程池状态
+		    runState表示当前线程池的状态，它是一个volatile变量用来保证线程之间的可见性
+			把变量声明为volatile（不稳定的）指示JVM，这个变量是不稳定的，每次使用它都到主存中进行读取。一般说来，多任务环境下各任务间共享的标志都应该加volatile修饰。
+		　　当创建线程池后，初始时，线程池处于RUNNING状态；
+　　        如果调用了shutdown()方法，则线程池处于SHUTDOWN状态，此时线程池不能够接受新的任务，它会等待所有任务执行完毕；
+　　        如果调用了shutdownNow()方法，则线程池处于STOP状态，此时线程池不能接受新的任务，并且会去尝试终止正在执行的任务；
+　　        当线程池处于SHUTDOWN或STOP状态，并且所有工作线程已经销毁，任务缓存队列已经清空或执行结束后，线程池被设置为TERMINATED状态。
+
+        1.6.4.任务缓存队列及排队策略
+　　        在前面我们多次提到了任务缓存队列，即workQueue，它用来存放等待执行的任务。
+　　        workQueue的类型为BlockingQueue<Runnable>，通常可以取下面三种类型：
+　　        1）ArrayBlockingQueue：基于数组的先进先出队列，此队列创建时必须指定大小；
+　　        2）LinkedBlockingQueue：基于链表的先进先出队列，如果创建时没有指定此队列大小，则默认为Integer.MAX_VALUE；
+　　        3）synchronousQueue：这个队列比较特殊，它不会保存提交的任务，而是将直接新建一个线程来执行新来的任务。
+
+        1.6.5.任务拒绝策略
+            当线程池的任务缓存队列已满并且线程池中的线程数目达到maximumPoolSize，如果还有任务到来就会采取任务拒绝策略，通常有以下四种策略：
+            ThreadPoolExecutor.AbortPolicy:丢弃任务并抛出RejectedExecutionException异常。
+            ThreadPoolExecutor.DiscardPolicy：也是丢弃任务，但是不抛出异常。
+            ThreadPoolExecutor.DiscardOldestPolicy：丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）
+            ThreadPoolExecutor.CallerRunsPolicy：由调用线程处理该任务
+
+        1.6.6.线程池的关闭
+            shutdown()：不会立即终止线程池，而是要等所有任务缓存队列中的任务都执行完后才终止，但再也不会接受新的任务
+            shutdownNow()：立即终止线程池，并尝试打断正在执行的任务，并且清空任务缓存队列，返回尚未执行的任务
+
+        1.6.7.线程池用例
+            public class Test {
+                 public static void main(String[] args) {   
+                     ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.MILLISECONDS,
+                             new ArrayBlockingQueue<Runnable>(5));
+                      
+                     for(int i=0;i<15;i++){
+                         MyTask myTask = new MyTask(i);
+                         executor.execute(myTask);
+                         System.out.println("线程池中线程数目："+executor.getPoolSize()+"，队列中等待执行的任务数目："+
+                         executor.getQueue().size()+"，已执行玩别的任务数目："+executor.getCompletedTaskCount());
+                     }
+                     executor.shutdown();
+                 }
+            }
+             
+             
+            class MyTask implements Runnable {
+                private int taskNum;
+                 
+                public MyTask(int num) {
+                    this.taskNum = num;
+                }
+                 
+                @Override
+                public void run() {
+                    System.out.println("正在执行task "+taskNum);
+                    try {
+                        Thread.currentThread().sleep(4000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("task "+taskNum+"执行完毕");
+                }
+            }
+
+        1.6.8.实际使用线程池时的方法
+		    不过在java doc中，并不提倡我们直接使用ThreadPoolExecutor，而是使用Executors类中提供的几个静态方法来创建线程池：
+            Executors.newCachedThreadPool();        //创建一个缓冲池，缓冲池容量大小为Integer.MAX_VALUE
+            Executors.newSingleThreadExecutor();   //创建容量为1的缓冲池
+            Executors.newFixedThreadPool(int);    //创建固定容量大小的缓冲池
+　　        newFixedThreadPool创建的线程池corePoolSize和maximumPoolSize值是相等的，它使用的LinkedBlockingQueue；
+　　        newSingleThreadExecutor将corePoolSize和maximumPoolSize都设置为1，也使用的LinkedBlockingQueue；
+　　        newCachedThreadPool将corePoolSize设置为0，将maximumPoolSize设置为Integer.MAX_VALUE，使用的SynchronousQueue，也就是说来了任务就创建线程运行，当线程空闲超过60秒，就销毁线程。
+
+        1.6.9.如何配置线程池大小
+            一般需要根据任务的类型来配置线程池大小：
+　　        如果是CPU密集型任务，就需要尽量压榨CPU，参考值可以设为?NCPU+1
+　　        如果是IO密集型任务，参考值可以设置为2*NCPU
+
+    Java通过Executors提供四种线程池，分别为：
+    newCachedThreadPool创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。
+    newFixedThreadPool 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。
+    newScheduledThreadPool 创建一个定长线程池，支持定时及周期性任务执行。
+    newSingleThreadExecutor 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。
+        (1) newCachedThreadPool
+            创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。示例代码如下：
+            package test;  
+            import java.util.concurrent.ExecutorService;  
+            import java.util.concurrent.Executors;  
+            public class ThreadPoolExecutorTest {  
+             public static void main(String[] args) {  
+              ExecutorService cachedThreadPool = Executors.newCachedThreadPool();  
+              for (int i = 0; i < 10; i++) {  
+               final int index = i;  
+               try {  
+                Thread.sleep(index * 1000);  
+               } catch (InterruptedException e) {  
+                e.printStackTrace();  
+               }  
+               cachedThreadPool.execute(new Runnable() {  
+                public void run() {  
+                 System.out.println(index);  
+                }  
+               });  
+              }  
+             }  
+            }
+            线程池为无限大，当执行第二个任务时第一个任务已经完成，会复用执行第一个任务的线程，而不用每次新建线程。
+        (2) newFixedThreadPool
+            创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。示例代码如下：
+            package test;  
+            import java.util.concurrent.ExecutorService;  
+            import java.util.concurrent.Executors;  
+            public class ThreadPoolExecutorTest {  
+             public static void main(String[] args) {  
+              ExecutorService fixedThreadPool = Executors.newFixedThreadPool(3);  
+              for (int i = 0; i < 10; i++) {  
+               final int index = i;  
+               fixedThreadPool.execute(new Runnable() {  
+                public void run() {  
+                 try {  
+                  System.out.println(index);  
+                  Thread.sleep(2000);  
+                 } catch (InterruptedException e) {  
+                  e.printStackTrace();  
+                 }  
+                }  
+               });  
+              }  
+             }  
+            }
+            因为线程池大小为3，每个任务输出index后sleep 2秒，所以每两秒打印3个数字。
+            定长线程池的大小最好根据系统资源进行设置。如Runtime.getRuntime().availableProcessors()
+        (3)  newScheduledThreadPool
+            创建一个定长线程池，支持定时及周期性任务执行。延迟执行示例代码如下：
+            package test;  
+            import java.util.concurrent.Executors;  
+            import java.util.concurrent.ScheduledExecutorService;  
+            import java.util.concurrent.TimeUnit;  
+            public class ThreadPoolExecutorTest {  
+             public static void main(String[] args) {  
+              ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);  
+              scheduledThreadPool.schedule(new Runnable() {  
+               public void run() {  
+                System.out.println("delay 3 seconds");  
+               }  
+              }, 3, TimeUnit.SECONDS);  
+             }  
+            }  
+            表示延迟3秒执行。
+			
+            定期执行示例代码如下：
+            package test;  
+            import java.util.concurrent.Executors;  
+            import java.util.concurrent.ScheduledExecutorService;  
+            import java.util.concurrent.TimeUnit;  
+            public class ThreadPoolExecutorTest {  
+             public static void main(String[] args) {  
+              ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);  
+              scheduledThreadPool.scheduleAtFixedRate(new Runnable() {  
+               public void run() {  
+                System.out.println("delay 1 seconds, and excute every 3 seconds");  
+               }  
+              }, 1, 3, TimeUnit.SECONDS);  
+             }  
+            }  
+            表示延迟1秒后每3秒执行一次。
+			
+        (4) newSingleThreadExecutor
+            创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。示例代码如下：
+            package test;  
+            import java.util.concurrent.ExecutorService;  
+            import java.util.concurrent.Executors;  
+            public class ThreadPoolExecutorTest {  
+             public static void main(String[] args) {  
+              ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();  
+              for (int i = 0; i < 10; i++) {  
+               final int index = i;  
+               singleThreadExecutor.execute(new Runnable() {  
+                public void run() {  
+                 try {  
+                  System.out.println(index);  
+                  Thread.sleep(2000);  
+                 } catch (InterruptedException e) {  
+                  e.printStackTrace();  
+                 }  
+                }  
+               });  
+              }  
+             }  
+            }  

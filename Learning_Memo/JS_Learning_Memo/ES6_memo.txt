@@ -1,0 +1,285 @@
+1.使用let可以定义一个具有块级作用域的变量，一旦在块级作用域里使用了let声明变量，则该块级作用域会出现“临时死区”，即调用未定义的变量会报错，
+  而不是像ES5一样返回undefined。
+2.使用const可以定义一个具有块级作用域的常量，同样会出现“临时死区”。
+  但如果该常量指向一个对象，则只是锁定了常量的内存地址（无法向该常量赋以新值），我们依然可以调用该常量修改其对应的对象中的属性。
+3.变量的解构赋值。
+  3.1.数组的解构赋值
+	let [a, b, c] = [1, 2, 3];
+  3.2.解构赋值允许指定默认值。
+	let [x, y = 'b'] = ['a']; // x='a', y='b'
+  3.3.对象的解构赋值
+	let { foo, bar } = { foo: "aaa", bar: "bbb" };
+	foo // "aaa"
+	bar // "bbb"
+	对象的属性没有次序，变量必须与属性同名，才能取到正确的值
+  3.4.字符串的解构赋值
+    const [a, b, c, d, e] = 'hello';
+	a // "h"
+	b // "e"
+	c // "l"
+	d // "l"
+	e // "o"
+3.字符串的扩展
+  3.1.针对unicode的双字节字符的扩展
+	codePointAt()
+	at()
+  3.2.字符串的遍历器接口 
+    for (let codePoint of 'foo') {
+	  console.log(codePoint)
+	}
+	// "f"
+	// "o"
+	// "o"
+  3.3.模板字符串
+    3.3.1.反引号（`）标识。
+		old:
+		var basketNum = 3;
+		$('#result').append(
+		'There are <b>' + basketNum + '</b> ' +
+		'items in your basket' +
+		);
+		New：
+		let basketNum = 3;
+		$('#result').append(`
+		There are <b>${basket}</b> items in your basket
+		`);
+	3.3.2.大括号内部可以放入任意的 JavaScript 表达式，可以进行运算，以及引用对象属性。
+		let x = 1;
+		let y = 2;
+		
+		`${x} + ${y} = ${x + y}`
+		// "1 + 2 = 3"
+
+		`${x} + ${y * 2} = ${x + y * 2}`
+		// "1 + 4 = 5"
+		
+		let obj = {x: 1, y: 2};
+		`${obj.x + obj.y}`
+		// "3"
+4.函数的扩展
+  4.1.函数的参数可以设置默认值
+	function log(x, y = 'World') {
+	console.log(x, y);
+	}
+	
+	log('Hello') // Hello World
+	log('Hello', 'China') // Hello China
+	log('Hello', '') // Hello
+  4.2.箭头函数 
+    var f = v => v;
+
+	// 等同于
+	var f = function (v) {
+	return v;
+	};
+	
+	如果箭头函数不需要参数或需要多个参数，就使用一个圆括号代表参数部分。
+	var f = () => 5;
+	// 等同于
+	var f = function () { return 5 };
+ 
+	如果箭头函数的代码块部分多于一条语句，就要使用大括号将它们括起来，并且使用return语句返回。
+	var sum = (num1, num2) => { return num1 + num2; }
+  
+	（1）函数体内的this对象，就是定义时所在的对象，而不是使用时所在的对象。
+	
+	（2）不可以当作构造函数，也就是说，不可以使用new命令，否则会抛出一个错误。
+	
+	（3）不可以使用arguments对象，该对象在函数体内不存在。如果要用，可以用 rest 参数代替。
+	
+	（4）不可以使用yield命令，因此箭头函数不能用作 Generator 函数。
+  
+  4.3.双冒号运算符 
+	箭头函数可以绑定this对象，大大减少了显式绑定this对象的写法（call、apply、bind）。
+	但是，箭头函数并不适用于所有场合，所以现在有一个提案，提出了“函数绑定”（function bind）运算符，用来取代call、apply、bind调用。
+	函数绑定运算符是并排的两个冒号（::），双冒号左边是一个对象，右边是一个函数。该运算符会自动将左边的对象，作为上下文环境（即this对象），绑定到右边的函数上面。
+	foo::bar;
+	// 等同于
+	bar.bind(foo);
+	
+	foo::bar(...arguments);
+	// 等同于
+	bar.apply(foo, arguments);
+5.数组的扩展
+  5.1.什么是类似数组的对象
+    所谓类似数组的对象，本质特征只有一点，即必须有length属性。因此，任何有length属性的对象，都可以通过Array.from方法转为数组，而此时扩展运算符就无法转换。
+  5.2.Array.form()
+    Array.from方法用于将两类对象转为真正的数组：类似数组的对象（array-like object）和可遍历（iterable）的对象（包括 ES6 新增的数据结构 Set 和 Map）。
+      let arrayLike = {
+          '0': 'a',
+          '1': 'b',
+          '2': 'c',
+          length: 3
+      };
+      
+      // ES5的写法
+      var arr1 = [].slice.call(arrayLike); // ['a', 'b', 'c']
+      
+      // ES6的写法
+      let arr2 = Array.from(arrayLike); // ['a', 'b', 'c']
+    Array.from还可以接受第二个参数，作用类似于数组的map方法，用来对每个元素进行处理，将处理后的值放入返回的数组。
+      Array.from([1, 2, 3], (x) => x * x)
+	  // [1, 4, 9]
+  5.3.数组实例的find和findIndex
+    数组实例的find方法，用于找出第一个符合条件的数组成员。它的参数是一个回调函数，所有数组成员依次执行该回调函数，
+	直到找出第一个返回值为true的成员，然后返回该成员。如果没有符合条件的成员，则返回undefined。
+	[1, 4, -5, 10].find((n) => n < 0)
+	// -5
+	
+	[1, 5, 10, 15].find(function(value, index, arr) {
+	return value > 9;
+	}) // 10
+	上面代码中，find方法的回调函数可以接受三个参数，依次为当前的值、当前的位置和原数组。
+	
+	数组实例的findIndex方法的用法与find方法非常类似，返回第一个符合条件的数组成员的位置，如果所有成员都不符合条件，则返回-1。
+	
+	[1, 5, 10, 15].findIndex(function(value, index, arr) {
+	return value > 9;
+	}) // 2
+  5.4.数组实例的 entries()，keys() 和 values()
+	ES6 提供三个新的方法——entries()，keys()和values()——用于遍历数组。
+	它们都返回一个遍历器对象（详见《Iterator》一章），可以用for...of循环进行遍历，唯一的区别是keys()是对键名的遍历、values()是对键值的遍历，entries()是对键值对的遍历。
+  5.6.扩展运算符
+    扩展运算符（spread）是三个点（...）。它好比 rest 参数的逆运算，将一个数组转为用逗号分隔的参数序列。
+	该运算符主要用于函数调用。
+	
+	function push(array, ...items) {
+		array.push(...items);
+	}
+	
+	function add(x, y) {
+		return x + y;
+	}
+	
+	const numbers = [4, 38];
+	add(...numbers) // 42
+	上面代码中，array.push(...items)和add(...numbers)这两行，都是函数的调用，它们的都使用了扩展运算符。该运算符将一个数组，变为参数序列。
+6.对象的扩展
+  6.1.利用字面量定义对象属性的时候可以使用省略写法
+	function f(x, y) {
+	return {x, y};
+	}
+	
+	// 等同于
+	
+	function f(x, y) {
+	return {x: x, y: y};
+	}
+	
+	f(1, 2) // Object {x: 1, y: 2}
+	除了属性简写，方法也可以简写。
+	
+	const o = {
+	method() {
+		return "Hello!";
+	}
+	};
+	
+	// 等同于
+	
+	const o = {
+	method: function() {
+		return "Hello!";
+	}
+	};
+  6.2.Object.assign()
+	Object.assign方法用于对象的合并，将源对象（source）的所有可枚举属性，复制到目标对象（target）。
+	
+	const target = { a: 1 };
+	
+	const source1 = { b: 2 };
+	const source2 = { c: 3 };
+	
+	Object.assign(target, source1, source2);
+	target // {a:1, b:2, c:3}
+  6.3.super关键字
+	我们知道，this关键字总是指向函数所在的当前对象，ES6 又新增了另一个类似的关键字super，指向当前对象的原型对象。
+	
+	const proto = {
+	foo: 'hello'
+	};
+	
+	const obj = {
+	foo: 'world',
+	find() {
+		return super.foo;
+	}
+	};
+	
+	Object.setPrototypeOf(obj, proto);
+	obj.find() // "hello"
+	注意，super关键字表示原型对象时，只能用在对象的方法之中，用在其他地方都会报错。
+7.Symbol
+  ES6 引入了一种新的原始数据类型Symbol，表示独一无二的值。它是 JavaScript 语言的第七种数据类型
+  Symbol 值通过Symbol函数生成。这就是说，对象的属性名现在可以有两种类型，一种是原来就有的字符串，另一种就是新增的 Symbol 类型。
+  凡是属性名属于 Symbol 类型，就都是独一无二的，可以保证不会与其他属性名产生冲突。
+	let mySymbol = Symbol();
+	
+	// 第一种写法
+	let a = {};
+	a[mySymbol] = 'Hello!';
+	
+	// 第二种写法
+	let a = {
+	[mySymbol]: 'Hello!'
+	};
+	
+	// 第三种写法
+	let a = {};
+	Object.defineProperty(a, mySymbol, { value: 'Hello!' });
+	
+	// 以上写法都得到同样结果
+	a[mySymbol] // "Hello!"
+  注意，Symbol 值作为对象属性名时，不能用点运算符。
+8.Set and Map）
+  8.1.Set
+    ES6 提供了新的数据结构 Set。它类似于数组，但是成员的值都是唯一的，没有重复的值。
+	  const s = new Set();
+	  
+	  [2, 3, 5, 4, 5, 2, 2].forEach(x => s.add(x));
+	  
+	  for (let i of s) {
+	  console.log(i);
+	  }
+	  // 2 3 5 4
+    Set 结构的实例有以下属性。
+    
+    Set.prototype.constructor：构造函数，默认就是Set函数。
+    Set.prototype.size：返回Set实例的成员总数。
+    Set 实例的方法分为两大类：操作方法（用于操作数据）和遍历方法（用于遍历成员）。下面先介绍四个操作方法。
+    
+    add(value)：添加某个值，返回 Set 结构本身。
+    delete(value)：删除某个值，返回一个布尔值，表示删除是否成功。
+    has(value)：返回一个布尔值，表示该值是否为Set的成员。
+    clear()：清除所有成员，没有返回值。
+  8.2.Map
+    ES6 提供了 Map 数据结构。它类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。
+	也就是说，Object 结构提供了“字符串—值”的对应，Map 结构提供了“值—值”的对应，是一种更完善的 Hash 结构实现。
+	如果你需要“键值对”的数据结构，Map 比 Object 更合适。
+	  const m = new Map();
+	  const o = {p: 'Hello World'};
+	  
+	  m.set(o, 'content')
+	  m.get(o) // "content"
+	  
+	  m.has(o) // true
+	  m.delete(o) // true
+	  m.has(o) // false
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

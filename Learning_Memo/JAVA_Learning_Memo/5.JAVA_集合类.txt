@@ -1,0 +1,179 @@
+1.常见的集合类有这些种：
+    实现Collection接口的：Set、List以及他们的实现类ArrayList、HashSet。
+    实现Map接口的：HashMap及其实现类，我们常用的有Map及其实现类HashMap，HashTable。
+    1.1.Set
+	    特点：成员不能重复
+	        1.1.1.HashSet
+			    特性：对保存的对象不保证有序（并不是说一定无序）
+				成员要求：成员可为任意Object子类的对象，但如果成员对象覆盖了equals方法，同时注意修改hashCode方法（HashSet是根据equals方法和hashCode方法来决定对象是否重复的）。
+				遍历方法：迭代器遍历
+                    for(Iterator iter = set.iterator(); iter.hasNext(); ) { 
+                        iter.next();
+                    } 
+			1.1.2.TreeSet
+			    特性：外部有序地遍历成员，且拥有比较功能，可指定返回满足比较条件的成员。但性能不如HashSet。
+				成员要求：成员要求实现caparable接口，或者使用Comparator构造TreeSet,不指定Comparator构造TreeSet时使用自然比较器。成员一般为同一类型。
+				遍历方法：迭代器遍历（可正序可倒序）
+				    //倒序遍历
+                    for(Iterator iter = set.iterator(); iter.hasNext(); ) { 
+                        iter.next();
+                    }
+					//正序遍历
+                    for(Iterator iter = set.descendingIterator(); iter.hasNext(); ) { 
+                        iter.next();
+                    }
+			1.1.3.LinkedHashSet
+			    特性：外部按成员的插入顺序遍历成员
+				成员要求：与HashMap一致
+				遍历方法：迭代器遍历
+                    for(Iterator iter = set.iterator(); iter.hasNext(); ) { 
+                        iter.next();
+                    } 
+    1.2.List
+	    特点：提供基于索引的对成员的随机访问
+		    1.2.1.ArrayList
+			    特性：提供快速的基于索引的成员访问，对尾部成员的增加和删除支持较好
+				成员要求：成员可为任意Object子类的对象
+			1.2.2.LinkedList
+				特性:对列表中任何位置的成员的增加和删除支持较好，但对基于索引的成员访问支持性能较差
+				成员要求：成员可为任意Object子类的对象
+			1.2.3.ArrayList与LinkedList区别
+                a．对ArrayList和LinkedList而言，在列表末尾增加一个元素所花的开销都是固定的。
+				   对ArrayList而言，主要是在内部数组中增加一项，指向所添加的元素，偶尔可能会导致对数组重新进行分配；而对LinkedList而言，这个开销是统一的，分配一个内部Entry对象。 
+                b．在ArrayList的中间插入或删除一个元素意味着这个列表中剩余的元素都会被移动；
+				   而在LinkedList的中间插入或删除一个元素的开销是固定的。 
+                c．LinkedList不支持高效的随机元素访问(即使用get(),set()方法随机访问某个成员)。 
+                d．ArrayList的空间浪费主要体现在在list列表的结尾预留一定的容量空间，而LinkedList的空间花费则体现在它的每一个元素都需要消耗相当的空间 
+                可以这样说：当操作是在一列数据的后面添加数据而不是在前面或中间,并且需要随机地访问其中的元素时,使用ArrayList会提供比较好的性能；
+				当你的操作是在一列数据的前面或中间添加或删除数据,并且按照顺序访问其中的元素时,就应该使用LinkedList了。
+			1.2.4.Vector
+			    Vector很是类似ArrayList，然则Vector是线程同步的，所以添加删除元素的效率比ArrayList慢。
+	1.3.Map
+	    特点：保存键值对成员，基于键找值操作，compareTo或compare方法对键排序
+		    1.3.1.HashMap
+	            特性：能满足用户对Map的通用需求
+				成员要求：键成员可为任意Object子类的对象，但如果覆盖了equals方法，同时注意修改hashCode方法。
+			1.3.2.TreeMap
+			    特性：支持对键有序地遍历，使用时建议先用HashMap增加和删除成员，最后从HashMap生成TreeMap；附加实现了SortedMap接口，支持子Map等要求顺序的操作
+				成员要求：成员要求实现caparable接口，或者使用Comparator构造TreeSet,不指定Comparator构造TreeSet时使用自然比较器。成员一般为同一类型。
+				1、TreeMap如不指定排序器，默认将按照key值进行升序排序，如果指定了排序器，则按照指定的排序器进行排序。
+                2、具体的排序规则，开发人员可以在int compare()方法中进行指定。
+			1.3.3.LinkedHashMap
+			    特性：保留键的插入顺序，在用Iterator遍历LinkedHashMap时，先得到的记录肯定是先插入的。
+				成员要求：键成员可为任意Object子类的对象，但如果覆盖了equals方法，同时注意修改hashCode方法。
+			1.3.4.IdentityHashMap
+			    特性：使用== 来检查键和值的相等性。即键或者值的内存地址必须一致，对一致性要求极高。
+				成员要求：成员使用的是严格相等
+			1.3.5.WeakHashMap
+			    a. 以弱键 实现的基于哈希表的 Map。在 WeakHashMap 中，当某个键不再正常使用时，将自动移除其条目。
+				   更精确地说，对于一个给定的键，其映射的存在并不阻止垃圾回收器对该键的丢弃，这就使该键成为可终止的，被终止，然后被回收。
+				   丢弃某个键时，其条目从映射中有效地移除
+				b. WeakHashMap 类的行为部分取决于垃圾回收器的动作。因为垃圾回收器在任何时候都可能丢弃键，WeakHashMap 就像是一个被悄悄移除条目的未知线程
+			1.3.6.HashTable
+			    HashMap可以允许存在一个为null的key和任意个为null的value，但是HashTable中的key和value都不允许为null。
+				Hashtable的方法是线程同步的，因为HashTable的put和get方法都有synchronized声明，而HashMap不是线程同步的。
+				但是HashMap可以使用 Collections类的synchronizedMap方法来生成一个线程同步的new HashMap
+				    Map m = Collections.synchronizedMap(new HashMap());
+					
+2.集合类之间的各种区别
+    1、HashMap和HashTable
+          相同点：二者都实现了Map接口，因此具有一系列Map接口提供的方法。
+          不同点：
+                1、HashMap继承了AbstractMap，而HashTable继承了Dictionary。
+                2、HashMap非线程安全，HashTable线程安全，到处都是synchronized关键字。
+                3、因为HashMap没有同步，所以处理起来效率较高。
+                4、HashMap键、值都允许为null，HashTable键、值都不允许有null。
+                5、HashTable使用Enumeration，HashMap使用Iterator。
+          这些就是一些比较突出的不同点，实际上他们在实现的过程中会有很多的不同，如初始化的大小、计算hash值的方式等等。
+    2、Set接口和List接口
+      相同点：都实现了Collection接口
+        不同点：
+              1、Set接口不保证维护元素的顺序，而且元素不能重复。List接口维护元素的顺序，而且元素可以重复。
+           2、关于Set元素如何保证元素不重复，我将在下面的博文中给出。
+    3、ArrayList和LinkList
+         相同点：都实现了Collection接口
+          不同点：ArrayList基于数组，具有较高的查询速度，而LinkedList基于双向循环列表，具有较快的添加或者删除的速度，二者的区别，其实就是数组和列表的区别。上文有详细的分析。
+    4、SortedSet和SortedMap
+          二者都提供了排序的功能。 来看一个小例子：
+    [java] view plain copy
+    
+     
+    public static void main(String[] args) {  
+              
+            SortedMap<String, Integer> map = new TreeMap<String, Integer>();  
+            map.put("zgg", 1);  
+            map.put("erqing", 3);  
+            map.put("niu", 0);  
+            map.put("abc", 2);  
+            map.put("aaa", 5);  
+              
+            Set<String> keySet = map.keySet();  
+            for (String string : keySet) {  
+                System.out.print(map.get(string)+" ");  
+            }  
+        }  
+    输出：5 2 3 0 1
+    从结果看得出：SortedMap具有自动排序功能
+    5、TreeMap和HashMap
+         HashMap具有较高的速度(查询)，TreeMap则提供了按照键进行排序的功能。
+    
+    6、HashSet和LinkedHashSet
+         HashSet，为快速查找而设计的Set。存入HashSet的对象必须实现hashCode()和equals()。
+         LinkedHashSet，具有HashSet的查询速度，且内部使用链表维护元素的顺序(插入的次序)，于是在使用迭代器遍历Set时，结果会按元素插入的次序显示。
+    7、TreeSet和HashSet
+         TreeSet: 提供排序功能的Set，底层为树结构 。相比较HashSet其查询速度低，如果只是进行元素的查询，我们一般使用HashSet。
+    8、ArrayList和Vector
+          同步性:Vector是线程安全的，也就是说是同步的，而ArrayList是线程序不安全的，不是同步的。
+          数据增长:当需要增长时,Vector默认增长为原来一培，而ArrayList却是原来的一半
+    9、Collection和Collections
+          Collection是一系列单值集合类的父接口，提供了基本的一些方法，而Collections则是一系列算法的集合。
+          里面的属性和方法基本都是static的，也就是说我们不需要实例化，直接可以使用类名来调用。
+
+3.集合类排序问题
+    一种情况是集合类本身自带排序功能，如前面说过的TreeSet、SortedSet、SortedMap等，另一种就是本身不带排序功能，我们通过为需要排序的类实现Comparable或者Comparator接口来实现。
+	3.1.集合中的对象类实现Comparable接口。
+        class User implements Comparable {  
+            private String name;  
+            private int age;  
+          
+            public User(String name, int age) {  
+                super();  
+                this.name = name;  
+                this.age = age;  
+            }  
+          
+            public String getName() {  
+                return name;  
+            }  
+          
+            public void setName(String name) {  
+                this.name = name;  
+            }  
+          
+            public int getAge() {  
+                return age;  
+            }  
+          
+            public void setAge(int age) {  
+                this.age = age;  
+            }  
+          
+            @Override  
+            public int compareTo(Object o) {  
+                return this.age - ((User) o).getAge();  
+            }  
+        }
+	3.2.为集合中的对象编写专门的Comparator类
+        class UserComparator implements Comparator<User> {  
+          
+            @Override  
+            public int compare(User user1, User user2) {  
+                int age1 = user1.getAge();  
+                int age2 = user2.getAge();  
+                if (age1 < age2) {  
+                    return 1;  
+                }  
+                return 0;  
+            }  
+          
+        }  

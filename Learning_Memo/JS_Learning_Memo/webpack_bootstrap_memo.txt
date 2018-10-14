@@ -1,0 +1,6 @@
+1.cnpm install --save-dev webpack
+2.cnpm install --save-dev webpack-cli
+3.cnpm install --save jquery
+4.cnpm install --save popper.js
+5.cnpm install --save-dev style-loader
+6.cnpm install --save-dev css-loader
