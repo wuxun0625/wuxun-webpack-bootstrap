@@ -1,0 +1,30 @@
+1.Authenticate is focus on who you are(Like SSO)
+   1.用户访问系统1的受保护资源，系统1发现用户未登录，跳转至sso认证中心，并将自己的地址作为参数
+   2.sso认证中心发现用户未登录，将用户引导至登录页面
+   3.用户输入用户名密码提交登录申请
+   4.sso认证中心校验用户信息，创建用户与sso认证中心之间的会话，称为全局会话，同时创建授权令牌
+   5.sso认证中心带着令牌跳转会最初的请求地址（系统1）
+   6.系统1拿到令牌，去sso认证中心校验令牌是否有效
+   7.sso认证中心校验令牌，返回有效，注册系统1
+   8.系统1使用该令牌创建与用户的会话，称为局部会话，返回受保护资源
+   9.用户访问系统2的受保护资源
+   10.系统2发现用户未登录，跳转至sso认证中心，并将自己的地址作为参数
+   11.sso认证中心发现用户已登录，跳转回系统2的地址，并附上令牌
+   12.系统2拿到令牌，去sso认证中心校验令牌是否有效
+   13.sso认证中心校验令牌，返回有效，注册系统2
+   14.系统2使用该令牌创建与用户的局部会话，返回受保护资源
+　 用户登录成功之后，会与sso认证中心及各个子系统建立会话，用户与sso认证中心建立的会话称为全局会话，
+   用户与各个子系统建立的会话称为局部会话，局部会话建立之后，用户访问子系统受保护资源将不再通过sso认证中心，而是使用局部会话来进行持续认证（Sessionid or private token）
+
+2.Authorization is focus on what you can do(Like Oauth)
+  There are 3 roles in Oauth structure:
+    a.User
+    b.Consumer(Like wechat small programer)
+    c.Service provider(Like wechat it self)
+  Basicaly the process is when consumer what get some user's resource(Like personal info) on service provider,
+  Consumer will send request to service provider for request token
+  then Consumer will redirect user to service provider to get user's authorization for the resources
+  if user grant the authorization then Consumer will get a access token
+  Consumer can use access token to get user's resources from service provider.
+  The above is 3-legged Oauth which need user involved in.
+  There is a 2-legged Oauth allow consumer to use "consumer key" and "consumer secret" to directly get usr's resources.
